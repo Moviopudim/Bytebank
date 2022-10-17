@@ -7,7 +7,7 @@ class ByteBankApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
         home: Scaffold(
-      body: FormularioTransferencia(),
+      body: listaTransferencia(),
     ));
   }
 }
@@ -55,6 +55,7 @@ class FormularioTransferencia extends StatelessWidget {
         ),
         body: Column(
           children: <Widget>[
+
             editor(
               controlador: _controladorNumeroConta,
               rotulo: 'Numero Da conta desejada',
@@ -66,6 +67,7 @@ class FormularioTransferencia extends StatelessWidget {
               dica: '000.00',
               icone: Icons.account_balance_wallet,
             ),
+
             OutlinedButton(
                 onPressed: () {
                   debugPrint('confirmou a transção.');
@@ -76,7 +78,7 @@ class FormularioTransferencia extends StatelessWidget {
                   if (numeroConta != null && valor != null) {
                     final transferenciaCriada =
                         transferencia(valor, numeroConta);
-                    debugPrint('$transferenciaCriada');
+                  Navigator.pop(context, transferenciaCriada);
                   }
                 },
                 style: const ButtonStyle(
@@ -93,6 +95,8 @@ class FormularioTransferencia extends StatelessWidget {
 }
 
 class listaTransferencia extends StatelessWidget {
+  final List<transferencia> _transferencias = [];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -100,11 +104,22 @@ class listaTransferencia extends StatelessWidget {
           title: const Text('Transferencias'),
           backgroundColor: Colors.green,
         ),
-        body: Column(
-          children: <Widget>[ItemTransferencia(transferencia(100.0, 1000))],
-        ),
+        body: ListView.builder(itemCount: _transferencias.length, itemBuilder: (context, indice) {
+          final _transferencia = _transferencias[indice];
+          return ItemTransferencia(_transferencia);
+        },),
+
         floatingActionButton: FloatingActionButton(
-          onPressed: () {},
+          onPressed: () {
+            final Future<dynamic> future = Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return FormularioTransferencia();
+            }));
+            future.then((transferenciaRecebida) {
+              debugPrint('$transferenciaRecebida');
+              debugPrint('chegou aqui');
+              _transferencias.add(transferenciaRecebida);
+            });
+          },
           child: const Icon(Icons.add),
         ));
   }
@@ -125,6 +140,9 @@ class ItemTransferencia extends StatelessWidget {
       ),
     );
   }
+}
+void criaTransferencia(){
+
 }
 
 class transferencia {
