@@ -5,17 +5,46 @@ void main() => runApp(ByteBankApp());
 class ByteBankApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
         home: Scaffold(
       body: FormularioTransferencia(),
     ));
   }
 }
 
-class FormularioTransferencia extends StatelessWidget {
-  const FormularioTransferencia({super.key});
+class editor extends StatelessWidget {
+  final TextEditingController controlador;
+  final String rotulo;
+  final String dica;
+  final IconData? icone;
 
-  get onPressed => null;
+  editor(
+      {required this.controlador,
+      required this.rotulo,
+      required this.dica,
+      this.icone});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.all(8.0),
+      child: TextField(
+        controller: controlador,
+        style: const TextStyle(fontSize: 19.0),
+        decoration: InputDecoration(
+          icon: icone != null ? Icon(icone) : null,
+          labelText: rotulo,
+          hintText: dica,
+        ),
+        keyboardType: TextInputType.number,
+      ),
+    );
+  }
+}
+
+class FormularioTransferencia extends StatelessWidget {
+  final TextEditingController _controladorNumeroConta = TextEditingController();
+  final TextEditingController _controladorValor = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -26,26 +55,30 @@ class FormularioTransferencia extends StatelessWidget {
         ),
         body: Column(
           children: <Widget>[
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: TextField(
-                style: TextStyle(fontSize: 19.0),
-                decoration: InputDecoration(
-                    labelText: 'Numero Da Conta', hintText: 'e.g: 0000'),
-                keyboardType: TextInputType.number,
-              ),
+            editor(
+              controlador: _controladorNumeroConta,
+              rotulo: 'Numero Da conta desejada',
+              dica: '0000',
             ),
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: TextField(
-                style: TextStyle(fontSize: 19.0),
-                decoration: InputDecoration(
-                    labelText: 'Valor Desejado', hintText: 'e.g: 100.00', icon: Icon(Icons.account_balance_wallet_sharp)),
-                keyboardType: TextInputType.number,
-              ),
+            editor(
+              controlador: _controladorValor,
+              rotulo: 'Valor Desejado',
+              dica: '000.00',
+              icone: Icons.account_balance_wallet,
             ),
             OutlinedButton(
-                onPressed: () {},
+                onPressed: () {
+                  debugPrint('confirmou a transção.');
+                  final int? numeroConta =
+                      int.tryParse(_controladorNumeroConta.text);
+                  final double? valor = double.tryParse(_controladorValor.text);
+
+                  if (numeroConta != null && valor != null) {
+                    final transferenciaCriada =
+                        transferencia(valor, numeroConta);
+                    debugPrint('$transferenciaCriada');
+                  }
+                },
                 style: const ButtonStyle(
                   backgroundColor:
                       MaterialStatePropertyAll<Color>(Colors.blueAccent),
@@ -95,8 +128,13 @@ class ItemTransferencia extends StatelessWidget {
 }
 
 class transferencia {
-  final double valor;
-  final int numeroConta;
+  final double? valor;
+  final int? numeroConta;
 
   transferencia(this.valor, this.numeroConta);
+
+  @override
+  String toString() {
+    return 'transferencia{valor: $valor, numeroConta: $numeroConta}';
+  }
 }
